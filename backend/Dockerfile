@@ -27,6 +27,7 @@ COPY docker/nginx.conf /etc/nginx/sites-available/default
 
 # Run migrations + start server
 CMD php artisan migrate --force && \
+    php artisan db:seed --force && \
     php artisan config:cache && \
     php artisan route:cache && \
     php-fpm -D && \
