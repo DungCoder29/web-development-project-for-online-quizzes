@@ -26,7 +26,7 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 
 # Run migrations + start server
-CMD php artisan migrate --force && \
+CMD php artisan migrate:fresh --force && \
     php artisan db:seed --force && \
     php artisan config:cache && \
     php artisan route:cache && \
