@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index(): JsonResponse
     {
-        $users = User::select('id', 'name', 'email', 'created_at')
+        $users = User::select('id', 'name', 'phone')
             ->orderBy('id', 'asc')
             ->get();
 
