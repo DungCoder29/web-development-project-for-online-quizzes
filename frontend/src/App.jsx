@@ -25,7 +25,7 @@ function App() {
       <table border="1" cellPadding="10" cellSpacing="0" style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead style={{ background: '#1a1a2e', color: '#fff' }}>
           <tr>
-            <th>#</th>
+            <th>ID</th>
             <th>Tên</th>
             <th>SĐT</th>
           </tr>
@@ -33,7 +33,7 @@ function App() {
         <tbody>
           {users.map((user, idx) => (
             <tr key={user.id}>
-              <td>{idx + 1}</td>
+              <td>{user.id}</td>
               <td>{user.name}</td>
               <td>{user.phone}</td>
             </tr>
