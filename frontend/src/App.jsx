@@ -27,8 +27,7 @@ function App() {
           <tr>
             <th>#</th>
             <th>Tên</th>
-            <th>Email</th>
-            <th>Ngày tạo</th>
+            <th>SĐT</th>
           </tr>
         </thead>
         <tbody>
@@ -36,8 +35,7 @@ function App() {
             <tr key={user.id}>
               <td>{idx + 1}</td>
               <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{new Date(user.created_at).toLocaleDateString('vi-VN')}</td>
+              <td>{user.phone}</td>
             </tr>
           ))}
         </tbody>
