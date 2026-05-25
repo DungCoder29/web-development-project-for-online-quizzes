@@ -2,19 +2,26 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import SubjectList from './SubjectList';
 import Quiz from './Quiz';
+import UserList from './UserList';
+import Layout from './Layout'; // Import Layout vừa tạo
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Lần đầu vào web (/) sẽ thấy trang Đăng nhập */}
+        
+        {/* 1. TRANG ĐỨNG ĐỘC LẬP (Không có thanh Menu) */}
         <Route path="/" element={<Login />} />
         
-        {/* Đăng nhập xong sẽ chuyển qua trang danh sách môn học */}
-        <Route path="/subjects" element={<SubjectList />} />
-        
-        {/* Chọn môn xong sẽ vào phòng thi của môn đó kèm theo ID môn học */}
-        <Route path="/quiz/:subjectId" element={<Quiz />} />
+        {/* 2. CÁC TRANG NẰM TRONG LAYOUT (Có thanh Menu và Footer) */}
+        <Route element={<Layout />}>
+          <Route path="/subjects" element={<SubjectList />} />
+          <Route path="/quiz/:subjectId" element={<Quiz />} />
+          
+          {/* Nếu bạn vẫn còn giữ file UserList.jsx hôm trước thì mở dòng này */}
+          {/* <Route path="/users" element={<UserList />} /> */}
+        </Route>
+
       </Routes>
     </BrowserRouter>
   );

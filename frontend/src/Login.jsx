@@ -1,59 +1,100 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import stuLogo from './assets/stu-logo.png';
 
 function Login() {
-  //  ĐÂY LÀ BIẾN (STATE): Dùng để lưu trữ tài khoản và mật khẩu khi người dùng gõ vào
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Tạm thời xử lý logic đăng nhập tĩnh (Sau này kết nối API lấy token từ Backend)
-    if (studentId.trim() !== '' && password.trim() !== '') {
-      // Đăng nhập thành công thì chuyển hướng sang trang chọn môn
-      navigate('/subjects');
-    } else {
-      alert('Vui lòng điền đầy đủ thông tin!');
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const trimmedStudentId = studentId.trim();
+    const trimmedPassword = password.trim();
+    const studentIdPattern = /^DH\d{8}$/;
+
+    if (!trimmedStudentId || !trimmedPassword) {
+      setErrorMessage('Vui lòng điền đầy đủ thông tin để tiếp tục.');
+      return;
     }
+
+    if (!studentIdPattern.test(trimmedStudentId)) {
+      setErrorMessage('Mã số sinh viên phải bắt đầu bằng DH và theo sau 8 số, không có ký tự đặc biệt.');
+      return;
+    }
+
+    setErrorMessage('');
+    navigate('/subjects');
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-      <div className="card shadow border-0 rounded-4" style={{ width: '400px' }}>
-        <div className="card-body p-5">
-          <h2 className="text-center fw-bold mb-4 text-primary">ĐĂNG NHẬP THI</h2>
+    <main className="login-shell">
+      <section className="login-panel">
+        <div>
+          
+
+          <div className="hero-copy">
+            <div className="main-logo">
+              <img src={stuLogo} alt="STU logo" className="stu-logo-img" />
+            </div>
+            <p className="eyebrow"></p>
+            <h1>Trang đăng nhập<br />Hệ thống thi trắc nghiệm</h1>
+            <p className="hero-accent"></p>
+          </div>
+        </div>
+
+        {/* contact-list removed as requested */}
+      </section>
+
+      <section className="login-aside">
+        <div className="aside-shape shape-a" />
+        <div className="aside-shape shape-b" />
+
+        <div className="glass-card">
+          <div className="form-header">
+            <h2>Đăng nhập</h2>
+          </div>
+
           <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label fw-semibold text-secondary">Mã Số Sinh Viên</label>
-              <input 
-                type="text" 
-                className="form-control form-control-lg rounded-pill" 
-                placeholder="Nhập mã SV..."
+            <div className="form-field">
+              <label htmlFor="studentId">Mã số sinh viên</label>
+              <input
+                id="studentId"
+                type="text"
+                className="glass-input"
+                placeholder="VD: DH12345678"
                 value={studentId}
-                onChange={(e) => setStudentId(e.target.value)} // Cập nhật biến state liên tục
-                required 
+                onChange={(e) => setStudentId(e.target.value.toUpperCase())}
+                autoComplete="username"
+                pattern="^DH\d{8}$"
+                title="Mã phải bắt đầu bằng DH và theo sau 8 chữ số"
               />
             </div>
-            <div className="mb-4">
-              <label className="form-label fw-semibold text-secondary">Mật Khẩu</label>
-              <input 
-                type="password" 
-                className="form-control form-control-lg rounded-pill" 
-                placeholder="••••••••" 
+
+            <div className="form-field">
+              <label htmlFor="password">Mật khẩu</label>
+              <input
+                id="password"
+                type="password"
+                className="glass-input"
+                placeholder="••••••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)} // Cập nhật biến state liên tục
-                required 
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
               />
             </div>
-            <button type="submit" className="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow-sm">
-              Vào Hệ Thống
+
+            {errorMessage && <p className="form-error">{errorMessage}</p>}
+
+            <button type="submit" className="primary-btn">
+              <span>🔒 Đăng nhập</span>
             </button>
           </form>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
 

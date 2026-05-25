@@ -54,6 +54,17 @@ body {
   margin: 0;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
 #root {
   width: 1126px;
   max-width: 100%;
@@ -108,4 +119,291 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, rgba(0, 168, 232, 0.16), transparent 28%),
+    linear-gradient(180deg, #f7fbff 0%, #eef7ff 100%);
+}
+
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 0;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.login-panel,
+.login-aside {
+  min-height: 100vh;
+  min-width: 0;
+}
+
+.login-panel {
+  background: #ffffff;
+  padding: 64px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 42px;
+}
+
+.brand-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: #00a8e8;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.4rem;
+  box-shadow: 0 20px 55px rgba(0, 168, 232, 0.14);
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #0f172a;
+}
+
+.brand-subtitle {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.hero-copy {
+  max-width: 520px;
+  padding-top: 18px;
+}
+
+.eyebrow {
+  margin: 0 0 18px;
+  color: #0c4a6e;
+  text-transform: uppercase;
+  letter-spacing: 0.26em;
+  font-size: 0.82rem;
+  opacity: 0.86;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  color: #064e3b;
+  font-size: clamp(3rem, 4vw, 4.8rem);
+  line-height: 1.18; /* increased spacing between lines */
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.hero-accent {
+  margin-top: 22px;
+  display: inline-block;
+  color: #075985;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.contact-list {
+  display: none; /* removed per request */
+}
+
+.main-logo {
+  margin-bottom: 18px;
+}
+
+.stu-logo-img {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  border-radius: 18px;
+  display: block;
+  box-shadow: 0 24px 48px rgba(14, 165, 233, 0.16);
+}
+
+.login-aside {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: linear-gradient(135deg, #00a8e8 0%, #0c84c9 48%, #1e3a8a 100%);
+}
+
+.aside-shape {
+  position: absolute;
+  border-radius: 26px;
+  filter: blur(1px);
+}
+
+.shape-a {
+  width: 180%;
+  height: 190%;
+  background: rgba(255, 255, 255, 0.12);
+  top: -42%;
+  right: -48%;
+  transform: rotate(22deg);
+}
+
+.shape-b {
+  width: 150%;
+  height: 150%;
+  background: rgba(255, 255, 255, 0.08);
+  bottom: -46%;
+  left: -40%;
+  transform: rotate(-14deg);
+}
+
+.glass-card {
+  position: relative;
+  width: 100%;
+  max-width: min(420px, 100%);
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(18px);
+  border-radius: 32px;
+  padding: 42px 38px;
+  z-index: 1;
+}
+
+.form-header {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.form-badge {
+  align-self: flex-start;
+  display: inline-flex;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: rgba(14, 165, 233, 0.14);
+  color: #0369a1;
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 2.1rem;
+  color: #0f172a;
+}
+
+.form-field {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 22px;
+  min-width: 0;
+}
+
+.form-field label {
+  color: #334155;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.glass-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 16px 20px;
+  color: #0f172a;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.24s ease, box-shadow 0.24s ease;
+}
+
+.glass-input:focus {
+  border-color: rgba(14, 165, 233, 0.8);
+  box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.12);
+}
+
+.form-error {
+  margin: 0 0 18px;
+  color: #dc2626;
+  font-size: 0.95rem;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 16px 0;
+  border: none;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary-btn:hover {
+  background: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.18);
+}
+
+@media (max-width: 980px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .login-panel,
+  .login-aside {
+    min-height: auto;
+    padding: 38px 28px;
+  }
+
+  .login-aside {
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .hero-copy h1 {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .login-panel,
+  .login-aside {
+    padding: 28px 18px;
+  }
+
+  .brand-row {
+    gap: 12px;
+  }
+
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .glass-card {
+    padding: 32px 24px;
+  }
 }
