@@ -1,36 +1,49 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import stuLogo from './assets/stu-logo.png';
+import { useAuth } from './AuthContext';
 
 function Login() {
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const trimmedStudentId = studentId.trim().toUpperCase();
-    const trimmedPassword = password.trim().toUpperCase();
+    const rawStudentId = studentId.trim();
+    const rawPassword = password.trim();
+
+    // 1. Kiểm tra tài khoản Admin đặc biệt
+    if (rawStudentId === 'ADMIN' && rawPassword === 'Admin@123') {
+      login({ userId: 'ADMIN', role: 'admin', token: 'admin-token' });
+      navigate('/admin');
+      return;
+    }
+
+    // 2. Giữ nguyên logic cũ của Sinh viên
+    const upperStudentId = rawStudentId.toUpperCase();
+    const upperPassword = rawPassword.toUpperCase();
     const studentIdPattern = /^DH\d{8}$/;
 
-    if (!trimmedStudentId || !trimmedPassword) {
+    if (!upperStudentId || !upperPassword) {
       setErrorMessage('Vui lòng điền đủ MSSV và mật khẩu.');
       return;
     }
 
-    if (!studentIdPattern.test(trimmedStudentId) || !studentIdPattern.test(trimmedPassword)) {
+    if (!studentIdPattern.test(upperStudentId) || !studentIdPattern.test(upperPassword)) {
       setErrorMessage('MSSV và mật khẩu phải có định dạng DH theo sau 8 chữ số.');
       return;
     }
 
-    if (trimmedStudentId !== trimmedPassword) {
+    if (upperStudentId !== upperPassword) {
       setErrorMessage('Mật khẩu phải trùng với MSSV.');
       return;
     }
 
-    localStorage.setItem('token', trimmedStudentId);
+    login({ userId: upperStudentId, role: 'student', token: upperStudentId });
     navigate('/subjects');
   };
 
