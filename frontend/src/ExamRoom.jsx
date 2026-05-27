@@ -16,16 +16,23 @@ export default function ExamRoom() {
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const select = (idx) => setAnswers((s) => ({ ...s, [current]: idx }));
 
-  const submit = () => {
-    // calculate score (fake)
+  const calculateScore = () => {
     let score = 0;
     questions.forEach((q, i) => { if (answers[i] === q.answer) score += 1; });
-    // pass score via state (simple)
+    return score;
+  };
+
+  const submit = () => {
+    const score = calculateScore();
     navigate('/results', { state: { score, total: questions.length } });
   };
+
+  const askConfirmSubmit = () => setShowConfirm(true);
+  const cancelSubmit = () => setShowConfirm(false);
 
   return (
     <div className="container py-4">
@@ -44,7 +51,7 @@ export default function ExamRoom() {
             {current < questions.length - 1 ? (
               <button className="btn btn-primary" onClick={() => setCurrent((c) => c + 1)}>Tiếp</button>
             ) : (
-              <button className="btn btn-success" onClick={submit}>Nộp bài</button>
+              <button className="btn btn-success" onClick={askConfirmSubmit}>Nộp bài</button>
             )}
           </div>
         </div>
@@ -58,6 +65,27 @@ export default function ExamRoom() {
           </div>
         </div>
       </div>
+
+      {showConfirm && (
+        <div className="adc-modal-backdrop">
+          <div className="adc-modal adc-modal--sm">
+            <div className="adc-modal__header">
+              <h3>Bạn có chắc chắn muốn nộp bài?</h3>
+            </div>
+            <div className="adc-modal__body">
+              <p>Hành động này sẽ gửi bài và bạn không thể chỉnh sửa thêm nữa. Chọn "Xác nhận" để nộp hoặc "Hủy" để quay về trang đánh đáp án.</p>
+            </div>
+            <div className="adc-modal__footer">
+              <button className="btn btn-outline-secondary" type="button" onClick={cancelSubmit}>
+                Hủy
+              </button>
+              <button className="btn btn-success" type="button" onClick={submit}>
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
