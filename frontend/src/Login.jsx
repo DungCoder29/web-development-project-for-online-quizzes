@@ -23,7 +23,7 @@ function Login() {
       return;
     }
 
-    // 2. Giữ nguyên logic cũ của Sinh viên
+    // 2. Logic đăng nhập sinh viên
     const upperStudentId = rawStudentId.toUpperCase();
     const upperPassword = rawPassword.toUpperCase();
     const studentIdPattern = /^DH\d{8}$/;
@@ -33,16 +33,17 @@ function Login() {
       return;
     }
 
-    if (!studentIdPattern.test(upperStudentId) || !studentIdPattern.test(upperPassword)) {
-      setErrorMessage('MSSV và mật khẩu phải có định dạng DH theo sau 8 chữ số.');
+    if (!studentIdPattern.test(upperStudentId)) {
+      setErrorMessage('MSSV phải có định dạng DH theo sau 8 chữ số.');
       return;
     }
 
     if (upperStudentId !== upperPassword) {
-      setErrorMessage('Mật khẩu phải trùng với MSSV.');
+      setErrorMessage('Mật khẩu không đúng. Mật khẩu mặc định là MSSV của bạn.');
       return;
     }
 
+    setErrorMessage('');
     login({ userId: upperStudentId, role: 'student', token: upperStudentId });
     navigate('/subjects');
   };
@@ -51,8 +52,6 @@ function Login() {
     <main className="login-shell">
       <section className="login-panel">
         <div>
-          
-
           <div className="hero-copy">
             <div className="main-logo">
               <img src={stuLogo} alt="STU logo" className="stu-logo-img" />
@@ -72,72 +71,37 @@ function Login() {
             <h2>Đăng nhập</h2>
           </div>
 
-          {forgotMode ? (
-            <form onSubmit={handleForgotSubmit}>
-              <div className="form-field">
-                <label htmlFor="forgotStudentId">MSSV</label>
-                <input
-                  id="forgotStudentId"
-                  type="text"
-                  className="glass-input"
-                  placeholder="VD: DH12345678"
-                  value={forgotStudentId}
-                  onChange={(e) => setForgotStudentId(e.target.value.toUpperCase())}
-                  autoComplete="username"
-                  pattern="^DH\\d{8}$"
-                  title="Mã phải bắt đầu bằng DH và theo sau 8 chữ số"
-                />
-              </div>
+          <form onSubmit={handleSubmit}>
+            <div className="form-field">
+              <label htmlFor="studentId">MSSV</label>
+              <input
+                id="studentId"
+                type="text"
+                className="glass-input"
+                placeholder="VD: DH12345678"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value.toUpperCase())}
+                autoComplete="username"
+                pattern={"^DH\\d{8}$"}
+                title="Mã phải bắt đầu bằng DH và theo sau 8 chữ số"
+              />
+            </div>
 
-              {errorMessage && <p className="form-error">{errorMessage}</p>}
-              {successMessage && <p className="form-success">{successMessage}</p>}
-
-              <button type="submit" className="primary-btn" disabled={loading}>
-                <span>{loading ? 'Đang xử lý...' : 'Gửi yêu cầu quên mật khẩu'}</span>
-              </button>
-
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={() => {
-                  setForgotMode(false);
-                  setErrorMessage('');
-                  setSuccessMessage('');
-                }}
-              >
-                Quay lại đăng nhập
-              </button>
-            </form>
-          ) : (
-            <>
-              <form onSubmit={handleSubmit}>
-                <div className="form-field">
-                  <label htmlFor="studentId">MSSV</label>
-                  <input
-                    id="studentId"
-                    type="text"
-                    className="glass-input"
-                    placeholder="VD: DH12345678"
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value.toUpperCase())}
-                    autoComplete="username"
-                    pattern="^DH\\d{8}$"
-                    title="Mã phải bắt đầu bằng DH và theo sau 8 chữ số"
-                  />
-                </div>
-
-                <div className="form-field">
-                  <label htmlFor="password">Mật khẩu</label>
-                  <input
-                    id="password"
-                    type="password"
-                    className="glass-input"
-                    placeholder="••••••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                  />
-                </div>
+            <div className="form-field">
+              <label htmlFor="password">Mật khẩu</label>
+              <input
+                id="password"
+                type="password"
+                className="glass-input"
+                placeholder="••••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+              {!password && studentId && (
+                <p className="form-hint">💡 Mật khẩu mặc định là MSSV của bạn</p>
+              )}
+            </div>
 
             {errorMessage && <p className="form-error">{errorMessage}</p>}
 
