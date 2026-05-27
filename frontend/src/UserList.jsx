@@ -1,101 +1,328 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 
+const API_URL = 'https://web-development-project-for-online.onrender.com/api/v1/users';
+const PAGE_SIZE = 8;
+const AVATAR_COLORS = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#dc2626', '#0891b2'];
+
+// ── Modal thêm / sửa user ──────────────────────────────────────────────────
+function UserFormModal({ mode, user, onClose, onSave }) {
+  const [name, setName] = useState(user?.name || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [err, setErr] = useState('');
+
+  const handleSave = () => {
+    if (!name.trim() || !phone.trim()) {
+      setErr('Vui lòng nhập đầy đủ họ tên và số điện thoại.');
+      return;
+    }
+    onSave({ name: name.trim(), phone: phone.trim() });
+  };
+
+  return (
+    <div className="adc-modal-backdrop" onClick={onClose}>
+      <div className="adc-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="adc-modal__header">
+          <h3>{mode === 'add' ? '➕ Thêm người dùng mới' : '✏️ Chỉnh sửa người dùng'}</h3>
+          <button className="adc-modal__close" onClick={onClose}>✕</button>
+        </div>
+        <div className="adc-modal__body">
+          {err && <div className="adc-alert adc-alert--danger">{err}</div>}
+          <div className="adc-form-field">
+            <label>Họ và tên</label>
+            <input
+              className="adc-input"
+              placeholder="Nhập họ và tên..."
+              value={name}
+              onChange={(e) => { setName(e.target.value); setErr(''); }}
+            />
+          </div>
+          <div className="adc-form-field">
+            <label>Số điện thoại</label>
+            <input
+              className="adc-input"
+              placeholder="Nhập số điện thoại..."
+              value={phone}
+              onChange={(e) => { setPhone(e.target.value); setErr(''); }}
+            />
+          </div>
+        </div>
+        <div className="adc-modal__footer">
+          <button className="adc-btn adc-btn--ghost" onClick={onClose}>Hủy</button>
+          <button className="adc-btn adc-btn--primary" onClick={handleSave}>
+            {mode === 'add' ? 'Thêm mới' : 'Lưu thay đổi'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Modal xác nhận xóa ─────────────────────────────────────────────────────
+function ConfirmModal({ user, onClose, onConfirm }) {
+  return (
+    <div className="adc-modal-backdrop" onClick={onClose}>
+      <div className="adc-modal adc-modal--sm" onClick={(e) => e.stopPropagation()}>
+        <div className="adc-modal__header">
+          <h3>🗑️ Xác nhận xóa</h3>
+          <button className="adc-modal__close" onClick={onClose}>✕</button>
+        </div>
+        <div className="adc-modal__body">
+          <p style={{ margin: 0 }}>
+            Bạn có chắc chắn muốn xóa người dùng{' '}
+            <strong>{user.name}</strong>?
+          </p>
+          <p style={{ margin: '8px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+            Hành động này không thể hoàn tác.
+          </p>
+        </div>
+        <div className="adc-modal__footer">
+          <button className="adc-btn adc-btn--ghost" onClick={onClose}>Hủy</button>
+          <button className="adc-btn adc-btn--danger" onClick={onConfirm}>Xóa</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Component chính ────────────────────────────────────────────────────────
 function UserList() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
+  const [users, setUsers]           = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage]             = useState(1);
+  const [toast, setToast]           = useState('');
+
+  // Modal states
+  const [formModal, setFormModal]     = useState(null); // null | { mode: 'add'|'edit', user? }
+  const [confirmDel, setConfirmDel]   = useState(null); // null | user object
+
+  // Tải dữ liệu từ API
   useEffect(() => {
-    // Gọi đúng đường link API v1   
-    axios.get('https://web-development-project-for-online.onrender.com/api/v1/users')
-      .then(response => {
-        setUsers(response.data.data); // Lấy chuẩn mảng dữ liệu
+    axios.get(API_URL)
+      .then((res) => {
+        setUsers(res.data.data || []);
         setLoading(false);
       })
-      .catch(error => {
-        console.log(error);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, []);
 
-  // Hiệu ứng Loading xoay xoay đẹp mắt thay vì chữ "Đang tải..."
+  // Toast tự ẩn sau 3s
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(''), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  // Lọc + phân trang
+  const filtered = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return users;
+    return users.filter(
+      (u) =>
+        u.name.toLowerCase().includes(term) ||
+        u.phone.toLowerCase().includes(term)
+    );
+  }, [users, searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Handlers
+  const handleSearch = (val) => { setSearchTerm(val); setPage(1); };
+
+  const handleAdd = () => setFormModal({ mode: 'add' });
+
+  const handleEdit = (user) => setFormModal({ mode: 'edit', user });
+
+  const handleDelete = (user) => setConfirmDel(user);
+
+  const handleSaveForm = ({ name, phone }) => {
+    if (formModal.mode === 'add') {
+      const newId = users.length > 0 ? Math.max(...users.map((u) => Number(u.id))) + 1 : 1;
+      setUsers((prev) => [{ id: newId, name, phone }, ...prev]);
+      setToast('✅ Đã thêm người dùng mới thành công!');
+    } else {
+      setUsers((prev) =>
+        prev.map((u) => (u.id === formModal.user.id ? { ...u, name, phone } : u))
+      );
+      setToast('✅ Đã cập nhật thông tin người dùng!');
+    }
+    setFormModal(null);
+  };
+
+  const handleConfirmDelete = () => {
+    setUsers((prev) => prev.filter((u) => u.id !== confirmDel.id));
+    setToast(`🗑️ Đã xóa người dùng "${confirmDel.name}".`);
+    setConfirmDel(null);
+  };
+
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Đang tải...</span>
-        </div>
+      <div className="adc-loading">
+        <div className="adc-spinner" />
+        <p>Đang tải dữ liệu...</p>
       </div>
     );
   }
 
   return (
-    <div className="container py-5">
-      <div className="card shadow-lg border-0 rounded-4">
-        
-        {/* Phần Header */}
-        <div className="card-header bg-dark text-white p-4 d-flex justify-content-between align-items-center rounded-top-4">
-          <div>
-            <h3 className="mb-0 fw-bold">👩‍🎓 Quản lý Sinh viên</h3>
-            <p className="mb-0 text-white-50 small">Hệ thống thi trắc nghiệm trực tuyến</p>
+    <div className="adc-page">
+      {/* Toast */}
+      {toast && <div className="adc-toast">{toast}</div>}
+
+      {/* Modals */}
+      {formModal && (
+        <UserFormModal
+          mode={formModal.mode}
+          user={formModal.user}
+          onClose={() => setFormModal(null)}
+          onSave={handleSaveForm}
+        />
+      )}
+      {confirmDel && (
+        <ConfirmModal
+          user={confirmDel}
+          onClose={() => setConfirmDel(null)}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
+
+      {/* Page Header */}
+      <div className="adc-page-header">
+        <div>
+          <h1 className="adc-page-title">👥 Quản lý người dùng</h1>
+          <p className="adc-page-desc">Tổng cộng {users.length} tài khoản trong hệ thống</p>
+        </div>
+        <button className="adc-btn adc-btn--primary" onClick={handleAdd}>
+          + Thêm người dùng
+        </button>
+      </div>
+
+      {/* Card */}
+      <div className="adc-card">
+        {/* Search bar */}
+        <div className="adc-toolbar">
+          <div className="adc-search-wrap">
+            <span className="adc-search-icon">🔍</span>
+            <input
+              className="adc-search-input"
+              placeholder="Tìm kiếm theo tên hoặc số điện thoại..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+            {searchTerm && (
+              <button className="adc-search-clear" onClick={() => handleSearch('')}>✕</button>
+            )}
           </div>
-          <button className="btn btn-primary fw-bold px-4 rounded-pill shadow">
-            + Thêm User
-          </button>
+          <span className="adc-toolbar__count">
+            {filtered.length} kết quả
+          </span>
         </div>
 
-        {/* Thanh công cụ tìm kiếm */}
-        <div className="card-body bg-light p-3 border-bottom">
-          <div className="row">
-            <div className="col-md-5">
-              <input type="text" className="form-control form-control-lg rounded-pill fs-6" placeholder="🔍 Tìm kiếm sinh viên..." />
-            </div>
-          </div>
-        </div>
-
-        {/* Bảng Dữ Liệu */}
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light">
+        {/* Table */}
+        <div className="adc-table-wrap">
+          <table className="adc-table">
+            <thead>
               <tr>
-                <th className="px-4 py-3 text-muted">ID</th>
-                <th className="py-3 text-muted">HỌ VÀ TÊN</th>
-                <th className="py-3 text-muted">SỐ ĐIỆN THOẠI</th>
-                <th className="px-4 py-3 text-end text-muted">THAO TÁC</th>
+                <th>#</th>
+                <th>Người dùng</th>
+                <th>Số điện thoại</th>
+                <th>Trạng thái</th>
+                <th className="text-end">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-4 fw-bold text-secondary">#{user.id}</td>
-                  <td className="fw-semibold text-dark">{user.name}</td>
-                  <td>
-                    {/* Format lại cột SĐT nhìn giống cái thẻ (badge) */}
-                    <span className="badge bg-info bg-opacity-10 text-info border border-info rounded-pill px-3 py-2">
-                      📞 {user.phone}
-                    </span>
-                  </td>
-                  <td className="px-4 text-end">
-                    <button className="btn btn-sm btn-light text-primary border me-2 px-3 rounded-pill fw-medium">Sửa</button>
-                    <button className="btn btn-sm btn-light text-danger border px-3 rounded-pill fw-medium">Xóa</button>
+              {paginated.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="adc-table__empty">
+                    {searchTerm ? 'Không tìm thấy người dùng phù hợp.' : 'Chưa có dữ liệu.'}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginated.map((user, idx) => (
+                  <tr key={user.id} className="adc-table__row">
+                    <td className="adc-table__id">#{user.id}</td>
+                    <td>
+                      <div className="adc-user-cell">
+                        <div
+                          className="adc-avatar-sm"
+                          style={{ background: AVATAR_COLORS[(idx) % AVATAR_COLORS.length] }}
+                        >
+                          {user.name ? user.name[0].toUpperCase() : '?'}
+                        </div>
+                        <span className="adc-user-cell__name">{user.name}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="adc-chip adc-chip--blue">{user.phone}</span>
+                    </td>
+                    <td>
+                      <span className="adc-chip adc-chip--green">● Hoạt động</span>
+                    </td>
+                    <td className="text-end">
+                      <button
+                        className="adc-btn adc-btn--sm adc-btn--outline-blue me-2"
+                        onClick={() => handleEdit(user)}
+                      >
+                        ✏️ Sửa
+                      </button>
+                      <button
+                        className="adc-btn adc-btn--sm adc-btn--outline-red"
+                        onClick={() => handleDelete(user)}
+                      >
+                        🗑️ Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Footer phân trang tĩnh */}
-        <div className="card-footer bg-white p-4 d-flex justify-content-between align-items-center rounded-bottom-4">
-          <span className="text-muted small fw-medium">Tổng cộng: {users.length} tài khoản</span>
-          <ul className="pagination pagination-sm mb-0">
-            <li className="page-item disabled"><a className="page-link" href="#">Trước</a></li>
-            <li className="page-item active"><a className="page-link" href="#">1</a></li>
-            <li className="page-item"><a className="page-link" href="#">2</a></li>
-            <li className="page-item"><a className="page-link" href="#">Tiếp</a></li>
-          </ul>
+        {/* Pagination */}
+        <div className="adc-pagination">
+          <span className="adc-pagination__info">
+            Trang {page} / {totalPages} &nbsp;·&nbsp; {filtered.length} người dùng
+          </span>
+          <div className="adc-pagination__btns">
+            <button
+              className="adc-btn adc-btn--sm adc-btn--ghost"
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              ‹ Trước
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+              .reduce((acc, p, i, arr) => {
+                if (i > 0 && p - arr[i - 1] > 1) acc.push('...');
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((p, i) =>
+                p === '...' ? (
+                  <span key={`dot-${i}`} className="adc-pagination__dots">…</span>
+                ) : (
+                  <button
+                    key={p}
+                    className={`adc-btn adc-btn--sm${page === p ? ' adc-btn--primary' : ' adc-btn--ghost'}`}
+                    onClick={() => setPage(p)}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            <button
+              className="adc-btn adc-btn--sm adc-btn--ghost"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Tiếp ›
+            </button>
+          </div>
         </div>
-
       </div>
     </div>
   );
