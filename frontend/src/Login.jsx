@@ -51,6 +51,8 @@ function Login() {
     <main className="login-shell">
       <section className="login-panel">
         <div>
+          
+
           <div className="hero-copy">
             <div className="main-logo">
               <img src={stuLogo} alt="STU logo" className="stu-logo-img" />
@@ -70,32 +72,72 @@ function Login() {
             <h2>Đăng nhập</h2>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-field">
-              <label htmlFor="studentId">MSSV</label>
-              <input
-                id="studentId"
-                type="text"
-                className="glass-input"
-                placeholder="VD: DH12345678"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value.toUpperCase())}
-                autoComplete="username"
-              />
-            </div>
+          {forgotMode ? (
+            <form onSubmit={handleForgotSubmit}>
+              <div className="form-field">
+                <label htmlFor="forgotStudentId">MSSV</label>
+                <input
+                  id="forgotStudentId"
+                  type="text"
+                  className="glass-input"
+                  placeholder="VD: DH12345678"
+                  value={forgotStudentId}
+                  onChange={(e) => setForgotStudentId(e.target.value.toUpperCase())}
+                  autoComplete="username"
+                  pattern="^DH\\d{8}$"
+                  title="Mã phải bắt đầu bằng DH và theo sau 8 chữ số"
+                />
+              </div>
 
-            <div className="form-field">
-              <label htmlFor="password">Mật khẩu</label>
-              <input
-                id="password"
-                type="password"
-                className="glass-input"
-                placeholder="Nhập lại MSSV"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-              />
-            </div>
+              {errorMessage && <p className="form-error">{errorMessage}</p>}
+              {successMessage && <p className="form-success">{successMessage}</p>}
+
+              <button type="submit" className="primary-btn" disabled={loading}>
+                <span>{loading ? 'Đang xử lý...' : 'Gửi yêu cầu quên mật khẩu'}</span>
+              </button>
+
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  setForgotMode(false);
+                  setErrorMessage('');
+                  setSuccessMessage('');
+                }}
+              >
+                Quay lại đăng nhập
+              </button>
+            </form>
+          ) : (
+            <>
+              <form onSubmit={handleSubmit}>
+                <div className="form-field">
+                  <label htmlFor="studentId">MSSV</label>
+                  <input
+                    id="studentId"
+                    type="text"
+                    className="glass-input"
+                    placeholder="VD: DH12345678"
+                    value={studentId}
+                    onChange={(e) => setStudentId(e.target.value.toUpperCase())}
+                    autoComplete="username"
+                    pattern="^DH\\d{8}$"
+                    title="Mã phải bắt đầu bằng DH và theo sau 8 chữ số"
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="password">Mật khẩu</label>
+                  <input
+                    id="password"
+                    type="password"
+                    className="glass-input"
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                  />
+                </div>
 
             {errorMessage && <p className="form-error">{errorMessage}</p>}
 
