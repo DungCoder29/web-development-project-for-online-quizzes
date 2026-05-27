@@ -44,12 +44,12 @@ function SubjectList() {
     );
   });
 
-  // 📌 LOGIC SẮP XẾP DATA (SORT): Sắp xếp mảng đã lọc theo thứ tự chữ cái A-Z hoặc Z-A
+  // 📌 LOGIC SẮP XẾP DATA (SORT): Sắp xếp mảng đã lọc theo ID
   const sortedSubjects = [...filteredSubjects].sort((a, b) => {
     if (sortOrder === 'asc') {
-      return a.name.localeCompare(b.name);
+      return a.id - b.id;
     } else {
-      return b.name.localeCompare(a.name);
+      return b.id - a.id;
     }
   });
 

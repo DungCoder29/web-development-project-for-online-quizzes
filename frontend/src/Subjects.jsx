@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function Subjects() {
   const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState('title');
+  const [sortBy, setSortBy] = useState('id');
   const [sortOrder, setSortOrder] = useState('asc');
   const [page, setPage] = useState(1);
   const pageSize = 3;
@@ -30,8 +30,17 @@ export default function Subjects() {
         );
       })
       .sort((a, b) => {
-        const aValue = a[sortBy].toString().toLowerCase();
-        const bValue = b[sortBy].toString().toLowerCase();
+        let aValue = a[sortBy];
+        let bValue = b[sortBy];
+        
+        // Numeric sort if id
+        if (sortBy === 'id') {
+          return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+        }
+        
+        // String sort for others
+        aValue = aValue.toString().toLowerCase();
+        bValue = bValue.toString().toLowerCase();
         if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
         if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
         return 0;
