@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Login';
-import SubjectList from './SubjectList';
-import Quiz from './Quiz';
-import UserList from './UserList';
-import Layout from './Layout'; // Import Layout vừa tạo
+import Subjects from './Subjects';
+import ExamRoom from './ExamRoom';
+import Results from './Results';
+import Admin from './Admin';
+import Layout from './Layout';
+import RequireAuth from './RequireAuth';
 
 function App() {
   return (
@@ -14,12 +16,11 @@ function App() {
         <Route path="/" element={<Login />} />
         
         {/* 2. CÁC TRANG NẰM TRONG LAYOUT (Có thanh Menu và Footer) */}
-        <Route element={<Layout />}>
-          <Route path="/subjects" element={<SubjectList />} />
-          <Route path="/quiz/:subjectId" element={<Quiz />} />
-          
-          {/* Nếu bạn vẫn còn giữ file UserList.jsx hôm trước thì mở dòng này */}
-          {/* <Route path="/users" element={<UserList />} /> */}
+        <Route element={<RequireAuth><Layout /></RequireAuth>}>
+          <Route path="/subjects" element={<Subjects />} />
+          <Route path="/exam/:id" element={<ExamRoom />} />
+          <Route path="/results" element={<Results />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
 
       </Routes>

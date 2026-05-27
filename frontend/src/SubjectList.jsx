@@ -33,9 +33,16 @@ function SubjectList() {
   }, []);
 
   // 📌 LOGIC LỌC DATA (FILTER): Tìm kiếm môn học dựa trên từ khóa gõ vào
-  const filteredSubjects = subjects.filter(subject => 
-    subject.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSubjects = subjects.filter(subject => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      subject.name.toLowerCase().includes(term) ||
+      subject.duration.toLowerCase().includes(term) ||
+      subject.totalQuestions.toString().includes(term) ||
+      subject.id.toString().includes(term)
+    );
+  });
 
   // 📌 LOGIC SẮP XẾP DATA (SORT): Sắp xếp mảng đã lọc theo thứ tự chữ cái A-Z hoặc Z-A
   const sortedSubjects = [...filteredSubjects].sort((a, b) => {
@@ -56,25 +63,31 @@ function SubjectList() {
 
   return (
     <div className="container py-5">
-      <h2 className="fw-bold mb-4 text-dark text-center">📚 DANH SÁCH MÔN THI TRẮC NGHIỆM</h2>
+      <h2 className="fw-bold mb-4 text-dark text-center">
+        <svg className="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v10a2 2 0 0 0 2 2h14" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M21 7V5a2 2 0 0 0-2-2H7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 7h10" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        DANH SÁCH MÔN THI TRẮC NGHIỆM
+      </h2>
       
       {/* Thanh Công Cụ: Chứa ô Lọc và Nút Sắp Xếp */}
-      <div className="row g-3 mb-4 justify-content-center">
+      <div className="row g-3 mb-4 justify-content-center align-items-center">
         <div className="col-md-6">
-          <input 
-            type="text" 
-            className="form-control rounded-pill px-4" 
-            placeholder="🔍 Gõ từ khóa để lọc tìm môn học..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // Kích hoạt bộ lọc tức thì khi gõ
-          />
+          <div className="input-group">
+            <span className="input-group-text bg-white border-end-0">🔎</span>
+            <input 
+              type="text" 
+              className="form-control rounded-pill ps-0" 
+              placeholder="Gõ từ khóa để lọc tìm môn học..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
         <div className="col-md-3">
           <button 
             className="btn btn-outline-secondary w-100 rounded-pill fw-medium"
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} // Đổi chiều sắp xếp
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
           >
-            Sắp xếp: {sortOrder === 'asc' ? 'Sắp xếp A-Z 🔽' : 'Sắp xếp Z-A 🔼'}
+            {sortOrder === 'asc' ? 'A → Z' : 'Z → A'}
           </button>
         </div>
       </div>
@@ -83,19 +96,21 @@ function SubjectList() {
       <div className="row g-4">
         {sortedSubjects.map(subject => (
           <div className="col-md-4" key={subject.id}>
-            <div className="card shadow-sm border-0 h-100 rounded-4 hover-shadow transition">
-              <div className="card-body p-4 d-flex flex-column justify-content-between">
-                <div>
-                  <span className="badge bg-primary bg-opacity-10 text-primary mb-2 rounded-pill px-3">Mã môn: #{subject.id}</span>
-                  <h4 className="card-title fw-bold text-dark mb-3">{subject.name}</h4>
-                  <p className="text-muted mb-1">⏱ Thời gian: <b>{subject.duration}</b></p>
-                  <p className="text-muted mb-3">📝 Số câu hỏi: <b>{subject.totalQuestions} câu</b></p>
-                </div>
+            <div className="subject-card h-100">
+              <div className="d-flex justify-content-between align-items-start mb-3">
+                <span className="subject-badge">Mã #{subject.id}</span>
+                <span className="text-muted small">{subject.duration}</span>
+              </div>
+              <h4 className="subject-title mb-2">{subject.name}</h4>
+              <p className="subject-meta">📝 <b>{subject.totalQuestions}</b> câu - Đề mẫu có sẵn</p>
+              <div className="mt-3 d-flex justify-content-center">
                 <button 
-                  onClick={() => navigate(`/quiz/${subject.id}`)} // Chuyển trang kèm ID môn
-                  className="btn btn-primary w-100 rounded-pill fw-semibold mt-3"
+                  onClick={() => navigate(`/quiz/${subject.id}`)}
+                  className="primary-btn"
+                  style={{ width: 'auto', minWidth: '160px' }}
                 >
-                  Vào Thi Ngay
+                  <svg className="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M12 5l7 7-7 7" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  &nbsp;Bắt đầu làm bài
                 </button>
               </div>
             </div>

@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import stuLogo from './assets/stu-logo.png';
+import useAuth from './hooks/useAuth';
 
 function Login() {
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const { login, loading, error } = useAuth();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const trimmedStudentId = studentId.trim();
@@ -26,7 +28,13 @@ function Login() {
     }
 
     setErrorMessage('');
-    navigate('/subjects');
+    try {
+      await login(trimmedStudentId, trimmedPassword);
+      navigate('/subjects');
+    } catch (err) {
+      // show error from hook if available
+      setErrorMessage(err?.response?.data?.message || error || 'Đăng nhập thất bại');
+    }
   };
 
   return (
@@ -88,8 +96,8 @@ function Login() {
 
             {errorMessage && <p className="form-error">{errorMessage}</p>}
 
-            <button type="submit" className="primary-btn">
-              <span>🔒 Đăng nhập</span>
+            <button type="submit" className="primary-btn" disabled={loading}>
+              <span>{loading ? 'Đang xử lý...' : '🔒 Đăng nhập'}</span>
             </button>
           </form>
         </div>
