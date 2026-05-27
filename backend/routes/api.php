@@ -12,3 +12,4 @@ Route::get('/message', function () {
 
 Route::get('/v1/users', [UserController::class, 'index']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);

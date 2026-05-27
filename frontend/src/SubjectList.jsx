@@ -67,7 +67,6 @@ function SubjectList() {
         <svg className="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v10a2 2 0 0 0 2 2h14" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M21 7V5a2 2 0 0 0-2-2H7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 7h10" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         DANH SÁCH MÔN THI TRẮC NGHIỆM
       </h2>
-      
       {/* Thanh Công Cụ: Chứa ô Lọc và Nút Sắp Xếp */}
       <div className="row g-3 mb-4 justify-content-center align-items-center">
         <div className="col-md-6">

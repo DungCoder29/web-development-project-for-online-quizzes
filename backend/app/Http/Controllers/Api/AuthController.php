@@ -28,4 +28,19 @@ class AuthController extends Controller
 
         return response()->json(["token" => $token]);
     }
+
+    public function forgotPassword(Request $request)
+    {
+        $data = $request->validate([
+            'studentId' => 'required|string',
+        ]);
+
+        if (!preg_match('/^DH\d{8}$/', $data['studentId'])) {
+            return response()->json(['message' => 'Mã số sinh viên không hợp lệ'], 422);
+        }
+
+        return response()->json([
+            'message' => 'Nếu mã số sinh viên tồn tại, hướng dẫn đặt lại mật khẩu sẽ được gửi đến email đăng ký.'
+        ]);
+    }
 }

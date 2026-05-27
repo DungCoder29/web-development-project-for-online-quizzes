@@ -377,6 +377,33 @@ body {
   box-shadow: 0 12px 30px rgba(16, 24, 40, 0.12);
 }
 
+.secondary-btn,
+.forgot-link {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.16s ease, transform 0.16s ease;
+}
+
+.secondary-btn:hover,
+.forgot-link:hover {
+  background: rgba(15, 23, 42, 0.14);
+  transform: translateY(-1px);
+}
+
+.form-success {
+  margin: 0 0 18px;
+  color: #047857;
+  font-size: 0.95rem;
+}
+
 /* Subject cards (teammate styles) */
 .subject-card {
   background: rgba(255,255,255,0.95);
