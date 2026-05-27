@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import QuestionCard from './components/QuestionCard';
 import Timer from './components/Timer';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,23 +8,41 @@ export default function ExamRoom() {
   const navigate = useNavigate();
 
   // fake questions
-  const questions = [
-    { id: 1, text: '1 + 1 = ?', options: ['1', '2', '3', '4'], answer: 1 },
-    { id: 2, text: '2 + 2 = ?', options: ['2', '3', '4', '5'], answer: 2 },
-    { id: 3, text: '3 + 3 = ?', options: ['5', '6', '7', '8'], answer: 1 },
-  ];
+  const [questions, setQuestions] = useState([]);
+
+useEffect(() => {
+  fetch("http://127.0.0.1:8000/api/questions")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      setQuestions(data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}, []);
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showConfirm, setShowConfirm] = useState(false);
+  if (!questions[current]) return <div>Loading...</div>;
 
   const select = (idx) => setAnswers((s) => ({ ...s, [current]: idx }));
 
   const calculateScore = () => {
-    let score = 0;
-    questions.forEach((q, i) => { if (answers[i] === q.answer) score += 1; });
-    return score;
-  };
+  let score = 0;
+
+  questions.forEach((q, i) => {
+    const correct =
+      q.correct_answer === 'A' ? 0 :
+      q.correct_answer === 'B' ? 1 :
+      q.correct_answer === 'C' ? 2 : 3;
+
+    if (answers[i] === correct) score += 1;
+  });
+
+  return score;
+};
 
   const submit = () => {
     const score = calculateScore();
