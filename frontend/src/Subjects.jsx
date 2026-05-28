@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from './api';
 
 export default function Subjects() {
   const [subjects, setSubjects] = useState([]);
@@ -12,7 +12,7 @@ export default function Subjects() {
   const pageSize = 3;
 
   useEffect(() => {
-    axios.get('/api/subjects')
+    api.get('/subjects')
       .then(res => {
         const mapped = (res.data.data || [])
           .filter(s => s.active)

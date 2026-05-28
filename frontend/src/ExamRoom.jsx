@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import QuestionCard from './components/QuestionCard';
 import Timer from './components/Timer';
 import { useNavigate, useParams } from 'react-router-dom';
+import api from './api';
 
 export default function ExamRoom() {
   const { id } = useParams();
@@ -10,17 +11,15 @@ export default function ExamRoom() {
   // fake questions
   const [questions, setQuestions] = useState([]);
 
-useEffect(() => {
-  fetch(`/api/questions?subject_id=${id}`)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
-      setQuestions(data);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}, [id]);
+  useEffect(() => {
+    api.get(`/questions?subject_id=${id}`)
+      .then((res) => {
+        setQuestions(res.data || []);
+      })
+      .catch((err) => {
+        console.error('Lỗi tải câu hỏi:', err);
+      });
+  }, [id]);
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});

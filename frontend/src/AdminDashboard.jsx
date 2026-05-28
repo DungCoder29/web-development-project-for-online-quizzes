@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from './api';
 import { Link } from 'react-router-dom';
 
-const API_URL = '/api/v1/users';
+const API_URL = '/v1/users';
 
 // Dữ liệu mẫu cho biểu đồ hoạt động (7 ngày gần nhất)
 const ACTIVITY_DATA = [42, 58, 35, 71, 63, 88, 54];
@@ -38,9 +38,9 @@ function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      axios.get(API_URL),
-      axios.get('/api/subjects'),
-      axios.get('/api/admin/questions')
+      api.get(API_URL),
+      api.get('/subjects'),
+      api.get('/admin/questions')
     ])
       .then(([usersRes, subjectsRes, questionsRes]) => {
         setUsers(usersRes.data.data || []);

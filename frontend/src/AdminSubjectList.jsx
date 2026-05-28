@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './api';
 
 const SUBJECT_ICONS = ['📘', '📗', '📙', '📕', '📓', '📔', '📒'];
 
@@ -120,7 +120,7 @@ function AdminSubjectList() {
   };
 
   const fetchSubjects = () => {
-    axios.get('/api/subjects')
+    api.get('/subjects')
       .then((res) => {
         const mapped = (res.data.data || []).map(s => ({
           ...s,
@@ -155,7 +155,7 @@ function AdminSubjectList() {
     };
 
     if (formModal.mode === 'add') {
-      axios.post('/api/subjects', payload)
+      api.post('/subjects', payload)
         .then(() => {
           showToast('✅ Đã thêm môn thi mới!');
           fetchSubjects();
@@ -165,7 +165,7 @@ function AdminSubjectList() {
           showToast('❌ Thêm môn thi thất bại.');
         });
     } else {
-      axios.put(`/api/subjects/${formModal.subject.id}`, payload)
+      api.put(`/subjects/${formModal.subject.id}`, payload)
         .then(() => {
           showToast('✅ Đã cập nhật thông tin môn thi!');
           fetchSubjects();
@@ -179,7 +179,7 @@ function AdminSubjectList() {
   };
 
   const handleConfirmDelete = () => {
-    axios.delete(`/api/subjects/${confirmDel.id}`)
+    api.delete(`/subjects/${confirmDel.id}`)
       .then(() => {
         showToast(`🗑️ Đã xóa môn thi "${confirmDel.name}".`);
         fetchSubjects();
@@ -195,7 +195,7 @@ function AdminSubjectList() {
     const target = subjects.find(s => s.id === id);
     if (!target) return;
 
-    axios.put(`/api/subjects/${id}`, {
+    api.put(`/subjects/${id}`, {
       name: target.name,
       desc: target.desc,
       duration: target.duration,

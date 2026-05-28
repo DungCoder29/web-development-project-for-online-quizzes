@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import axios from 'axios';
+import api from './api';
 
 const SUBJECTS = [
   { id: 1, name: 'Toán học' },
@@ -195,8 +195,8 @@ function AdminQuestionList() {
 
   const fetchQuestionsAndSubjects = () => {
     Promise.all([
-      axios.get('/api/subjects'),
-      axios.get('/api/admin/questions')
+      api.get('/subjects'),
+      api.get('/admin/questions')
     ])
       .then(([subjectsRes, questionsRes]) => {
         setSubjects(subjectsRes.data.data || []);
@@ -245,7 +245,7 @@ function AdminQuestionList() {
     };
 
     if (formModal.mode === 'add') {
-      axios.post('/api/questions', payload)
+      api.post('/questions', payload)
         .then(() => {
           showToast('✅ Đã thêm câu hỏi mới!');
           fetchQuestionsAndSubjects();
@@ -255,7 +255,7 @@ function AdminQuestionList() {
           showToast('❌ Thêm câu hỏi thất bại.');
         });
     } else {
-      axios.put(`/api/questions/${formModal.question.id}`, payload)
+      api.put(`/questions/${formModal.question.id}`, payload)
         .then(() => {
           showToast('✅ Đã cập nhật câu hỏi!');
           fetchQuestionsAndSubjects();
@@ -269,7 +269,7 @@ function AdminQuestionList() {
   };
 
   const handleConfirmDelete = () => {
-    axios.delete(`/api/questions/${confirmDel.id}`)
+    api.delete(`/questions/${confirmDel.id}`)
       .then(() => {
         showToast('🗑️ Đã xóa câu hỏi.');
         fetchQuestionsAndSubjects();

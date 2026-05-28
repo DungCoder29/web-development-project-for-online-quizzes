@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
+import api from './api';
 
-const API_URL = '/api/v1/users';
+const API_URL = '/v1/users';
 const PAGE_SIZE = 8;
 const AVATAR_COLORS = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#dc2626', '#0891b2'];
 
@@ -98,7 +98,7 @@ function UserList() {
   const [confirmDel, setConfirmDel]   = useState(null); // null | user object
 
   const fetchUsers = () => {
-    axios.get(API_URL)
+    api.get(API_URL)
       .then((res) => {
         setUsers(res.data.data || []);
         setLoading(false);
@@ -146,7 +146,7 @@ function UserList() {
 
   const handleSaveForm = ({ name, phone }) => {
     if (formModal.mode === 'add') {
-      axios.post(API_URL, { name, phone })
+      api.post(API_URL, { name, phone })
         .then(() => {
           setToast('✅ Đã thêm người dùng mới thành công!');
           fetchUsers();
@@ -156,7 +156,7 @@ function UserList() {
           setToast('❌ Thêm người dùng thất bại.');
         });
     } else {
-      axios.put(`${API_URL}/${formModal.user.id}`, { name, phone })
+      api.put(`${API_URL}/${formModal.user.id}`, { name, phone })
         .then(() => {
           setToast('✅ Đã cập nhật thông tin người dùng!');
           fetchUsers();
@@ -170,7 +170,7 @@ function UserList() {
   };
 
   const handleConfirmDelete = () => {
-    axios.delete(`${API_URL}/${confirmDel.id}`)
+    api.delete(`${API_URL}/${confirmDel.id}`)
       .then(() => {
         setToast(`🗑️ Đã xóa người dùng "${confirmDel.name}".`);
         fetchUsers();
