@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-const API_URL = 'https://web-development-project-for-online.onrender.com/api/v1/users';
+const API_URL = '/api/v1/users';
 
 // Dữ liệu mẫu cho biểu đồ hoạt động (7 ngày gần nhất)
 const ACTIVITY_DATA = [42, 58, 35, 71, 63, 88, 54];
@@ -31,18 +31,26 @@ function StatCard({ icon, label, value, sub, accent, linkTo, linkLabel }) {
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
+  const [subjectsCount, setSubjectsCount] = useState(0);
+  const [questionsCount, setQuestionsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios
-      .get(API_URL)
-      .then((res) => {
-        setUsers(res.data.data || []);
+    Promise.all([
+      axios.get(API_URL),
+      axios.get('/api/subjects'),
+      axios.get('/api/admin/questions')
+    ])
+      .then(([usersRes, subjectsRes, questionsRes]) => {
+        setUsers(usersRes.data.data || []);
+        setSubjectsCount(subjectsRes.data.data ? subjectsRes.data.data.length : 0);
+        setQuestionsCount(questionsRes.data.data ? questionsRes.data.data.length : 0);
         setLoading(false);
       })
-      .catch(() => {
-        setError('Không thể tải dữ liệu người dùng từ API.');
+      .catch((err) => {
+        console.error(err);
+        setError('Không thể tải dữ liệu tổng quan từ API.');
         setLoading(false);
       });
   }, []);
@@ -82,10 +90,10 @@ function AdminDashboard() {
           linkTo="/admin/users"
           linkLabel="Xem danh sách"
         />
-        <StatCard
+         <StatCard
           icon="📚"
           label="Môn thi"
-          value="6"
+          value={loading ? '...' : subjectsCount}
           sub="Đang hoạt động"
           accent="#059669"
           linkTo="/admin/subjects"
@@ -94,7 +102,7 @@ function AdminDashboard() {
         <StatCard
           icon="❓"
           label="Câu hỏi"
-          value="120"
+          value={loading ? '...' : questionsCount}
           sub="Trong ngân hàng đề"
           accent="#d97706"
           linkTo="/admin/questions"

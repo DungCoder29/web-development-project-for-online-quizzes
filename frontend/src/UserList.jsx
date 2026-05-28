@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 
-const API_URL = 'https://web-development-project-for-online.onrender.com/api/v1/users';
+const API_URL = '/api/v1/users';
 const PAGE_SIZE = 8;
 const AVATAR_COLORS = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#dc2626', '#0891b2'];
 
@@ -97,14 +97,21 @@ function UserList() {
   const [formModal, setFormModal]     = useState(null); // null | { mode: 'add'|'edit', user? }
   const [confirmDel, setConfirmDel]   = useState(null); // null | user object
 
-  // Tải dữ liệu từ API
-  useEffect(() => {
+  const fetchUsers = () => {
     axios.get(API_URL)
       .then((res) => {
         setUsers(res.data.data || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  };
+
+  // Tải dữ liệu từ API
+  useEffect(() => {
+    fetchUsers();
   }, []);
 
   // Toast tự ẩn sau 3s
@@ -120,8 +127,8 @@ function UserList() {
     if (!term) return users;
     return users.filter(
       (u) =>
-        u.name.toLowerCase().includes(term) ||
-        u.phone.toLowerCase().includes(term)
+        (u.name || '').toLowerCase().includes(term) ||
+        (u.phone || '').toLowerCase().includes(term)
     );
   }, [users, searchTerm]);
 
@@ -139,21 +146,39 @@ function UserList() {
 
   const handleSaveForm = ({ name, phone }) => {
     if (formModal.mode === 'add') {
-      const newId = users.length > 0 ? Math.max(...users.map((u) => Number(u.id))) + 1 : 1;
-      setUsers((prev) => [{ id: newId, name, phone }, ...prev]);
-      setToast('✅ Đã thêm người dùng mới thành công!');
+      axios.post(API_URL, { name, phone })
+        .then(() => {
+          setToast('✅ Đã thêm người dùng mới thành công!');
+          fetchUsers();
+        })
+        .catch((err) => {
+          console.error(err);
+          setToast('❌ Thêm người dùng thất bại.');
+        });
     } else {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === formModal.user.id ? { ...u, name, phone } : u))
-      );
-      setToast('✅ Đã cập nhật thông tin người dùng!');
+      axios.put(`${API_URL}/${formModal.user.id}`, { name, phone })
+        .then(() => {
+          setToast('✅ Đã cập nhật thông tin người dùng!');
+          fetchUsers();
+        })
+        .catch((err) => {
+          console.error(err);
+          setToast('❌ Cập nhật người dùng thất bại.');
+        });
     }
     setFormModal(null);
   };
 
   const handleConfirmDelete = () => {
-    setUsers((prev) => prev.filter((u) => u.id !== confirmDel.id));
-    setToast(`🗑️ Đã xóa người dùng "${confirmDel.name}".`);
+    axios.delete(`${API_URL}/${confirmDel.id}`)
+      .then(() => {
+        setToast(`🗑️ Đã xóa người dùng "${confirmDel.name}".`);
+        fetchUsers();
+      })
+      .catch((err) => {
+        console.error(err);
+        setToast('❌ Xóa người dùng thất bại.');
+      });
     setConfirmDel(null);
   };
 

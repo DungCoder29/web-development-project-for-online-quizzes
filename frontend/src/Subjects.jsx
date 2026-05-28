@@ -1,22 +1,36 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Subjects() {
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('id');
   const [sortOrder, setSortOrder] = useState('asc');
   const [page, setPage] = useState(1);
   const pageSize = 3;
 
-  const subjects = [
-    { id: 1, title: 'Toán học', description: 'Đề kiểm tra chương 1-3' },
-    { id: 2, title: 'Vật lý', description: 'Đề giữa kỳ' },
-    { id: 3, title: 'Hóa học', description: 'Ngân hàng câu hỏi cơ bản' },
-    { id: 4, title: 'Tiếng Anh', description: 'Đề thi học kỳ' },
-    { id: 5, title: 'Lịch sử', description: 'Đề ôn tập tổng hợp' },
-    { id: 6, title: 'Sinh học', description: 'Câu hỏi bài tập lớn' },
-    { id: 7, title: 'Tin học', description: 'Kiểm tra kiến thức lập trình' },
-  ];
+  useEffect(() => {
+    axios.get('/api/subjects')
+      .then(res => {
+        const mapped = (res.data.data || [])
+          .filter(s => s.active)
+          .map(s => ({
+            id: s.id,
+            title: s.name,
+            description: s.desc || '',
+            duration: s.duration,
+            questionsCount: s.questions_count || 0
+          }));
+        setSubjects(mapped);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Lỗi tải môn thi:', err);
+        setLoading(false);
+      });
+  }, []);
 
   const filteredSubjects = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -55,6 +69,15 @@ export default function Subjects() {
   const goPage = (newPage) => {
     setPage(newPage);
   };
+
+  if (loading) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border text-primary" role="status"></div>
+        <p className="mt-2 text-muted">Đang tải danh sách môn học...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-5">
@@ -110,7 +133,7 @@ export default function Subjects() {
               <div className="subject-card p-3 h-100 d-flex flex-column">
                 <div className="d-flex justify-content-between align-items-start mb-2">
                   <span className="subject-badge">{s.id}</span>
-                  <span className="text-muted small">{s.title.includes('Toán') ? '45p' : '60p'}</span>
+                  <span className="text-muted small">{s.duration ? `${s.duration}p` : '45p'}</span>
                 </div>
                 <h5 className="mb-2 subject-title">{s.title}</h5>
                 <p className="text-muted flex-grow-1 subject-meta">{s.description}</p>

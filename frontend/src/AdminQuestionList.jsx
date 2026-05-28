@@ -1,32 +1,73 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
 
 const SUBJECTS = [
-  { id: 1, name: 'Kiểm thử phần mềm' },
-  { id: 2, name: 'Xây dựng phần mềm Web' },
-  { id: 3, name: 'Lập trình C++' },
-  { id: 4, name: 'Cơ sở dữ liệu' },
-  { id: 5, name: 'Mạng máy tính' },
-  { id: 6, name: 'Trí tuệ nhân tạo' },
+  { id: 1, name: 'Toán học' },
+  { id: 2, name: 'Vật lý' },
+  { id: 3, name: 'Hóa học' },
+  { id: 4, name: 'Tiếng Anh' },
+  { id: 5, name: 'Lịch sử' },
+  { id: 6, name: 'Sinh học' },
+  { id: 7, name: 'Tin học' },
 ];
 
 const INIT_QUESTIONS = [
-  { id: 1, subjectId: 1, content: 'Unit Testing là loại kiểm thử ở cấp độ nào?', optA: 'Hệ thống', optB: 'Đơn vị', optC: 'Tích hợp', optD: 'Chấp nhận', correct: 'B' },
-  { id: 2, subjectId: 1, content: 'Black-box testing kiểm tra điều gì?', optA: 'Mã nguồn nội bộ', optB: 'Giao diện và chức năng đầu ra', optC: 'Hiệu năng', optD: 'Bảo mật', correct: 'B' },
-  { id: 3, subjectId: 2, content: 'CSS Flexbox sử dụng thuộc tính nào để căn chỉnh theo trục chính?', optA: 'align-items', optB: 'justify-items', optC: 'justify-content', optD: 'align-content', correct: 'C' },
-  { id: 4, subjectId: 2, content: 'React sử dụng kiến trúc nào cho giao diện người dùng?', optA: 'MVC', optB: 'MVVM', optC: 'Component-based', optD: 'Microservice', correct: 'C' },
-  { id: 5, subjectId: 3, content: 'Trong C++, từ khóa nào dùng để kế thừa lớp?', optA: 'extends', optB: 'inherits', optC: ':',  optD: 'derive', correct: 'C' },
-  { id: 6, subjectId: 4, content: 'SQL là viết tắt của từ gì?', optA: 'Simple Query Language', optB: 'Structured Query Language', optC: 'System Query Language', optD: 'Sequential Query Language', correct: 'B' },
-  { id: 7, subjectId: 4, content: 'Câu lệnh nào dùng để lấy dữ liệu từ bảng?', optA: 'GET', optB: 'FETCH', optC: 'SELECT', optD: 'RETRIEVE', correct: 'C' },
-  { id: 8, subjectId: 5, content: 'Mô hình OSI có bao nhiêu tầng?', optA: '5', optB: '6', optC: '7', optD: '8', correct: 'C' },
-  { id: 9, subjectId: 6, content: 'Machine Learning là một nhánh của ngành nào?', optA: 'Data Science', optB: 'Artificial Intelligence', optC: 'Computer Vision', optD: 'Robotics', correct: 'B' },
+  // Toán học (subjectId = 1)
+  { id: 1, subjectId: 1, content: 'Một cộng một bằng mấy?', optA: '1', optB: '2', optC: '3', optD: '4', correct: 'B' },
+  { id: 2, subjectId: 1, content: 'Phép tính 5 + 3 * 2 bằng mấy?', optA: '16', optB: '13', optC: '11', optD: '10', correct: 'C' },
+  { id: 3, subjectId: 1, content: 'Căn bậc hai của 64 là mấy?', optA: '6', optB: '7', optC: '9', optD: '8', correct: 'D' },
+  { id: 4, subjectId: 1, content: 'Đạo hàm của x^2 là gì?', optA: '2x', optB: 'x', optC: '2', optD: 'x^2', correct: 'A' },
+  { id: 5, subjectId: 1, content: 'Giá trị của cos(0) là bao nhiêu?', optA: '0', optB: '1', optC: '-1', optD: '0.5', correct: 'B' },
+
+  // Vật lý (subjectId = 2)
+  { id: 6, subjectId: 2, content: 'Đơn vị đo cường độ dòng điện là gì?', optA: 'Ampe (A)', optB: 'Vôn (V)', optC: 'Oát (W)', optD: 'Ôm (Ω)', correct: 'A' },
+  { id: 7, subjectId: 2, content: 'Vận tốc ánh sáng trong chân không là bao nhiêu?', optA: '300 km/s', optB: '3,000 km/s', optC: '300,000 km/s', optD: '30,000 km/s', correct: 'C' },
+  { id: 8, subjectId: 2, content: 'Trọng lực của một vật được tính bằng công thức nào?', optA: 'P = m * g', optB: 'P = m / g', optC: 'P = F * s', optD: 'P = m * v', correct: 'A' },
+  { id: 9, subjectId: 2, content: 'Hiện tượng cầu vồng xảy ra do hiện tượng gì của ánh sáng?', optA: 'Phản xạ ánh sáng', optB: 'Tán sắc ánh sáng', optC: 'Khúc xạ ánh sáng', optD: 'Giao thoa ánh sáng', correct: 'B' },
+  { id: 10, subjectId: 2, content: 'Nhiệt độ sôi của nước ở áp suất tiêu chuẩn là bao nhiêu?', optA: '0 độ C', optB: '50 độ C', optC: '80 độ C', optD: '100 độ C', correct: 'D' },
+
+  // Hóa học (subjectId = 3)
+  { id: 11, subjectId: 3, content: 'Ký hiệu hóa học của vàng là gì?', optA: 'Ag', optB: 'Au', optC: 'Fe', optD: 'Cu', correct: 'B' },
+  { id: 12, subjectId: 3, content: 'Nước được cấu tạo từ các nguyên tố nào?', optA: 'Hydro và Oxy', optB: 'Nitơ và Oxy', optC: 'Cacbon và Oxy', optD: 'Hydro và Nitơ', correct: 'A' },
+  { id: 13, subjectId: 3, content: 'Axit sunfuric có công thức hóa học là gì?', optA: 'HCl', optB: 'HNO3', optC: 'H2SO4', optD: 'H2CO3', correct: 'C' },
+  { id: 14, subjectId: 3, content: 'Chất nào sau đây được gọi là khí gas cười?', optA: 'N2O', optB: 'CO2', optC: 'CO', optD: 'NO2', correct: 'A' },
+  { id: 15, subjectId: 3, content: 'Kim loại nào nhẹ nhất trong các kim loại sau?', optA: 'Nhôm', optB: 'Lithi', optC: 'Sắt', optD: 'Đồng', correct: 'B' },
+
+  // Tiếng Anh (subjectId = 4)
+  { id: 16, subjectId: 4, content: 'What is the past tense of "go"?', optA: 'goes', optB: 'goed', optC: 'went', optD: 'gone', correct: 'C' },
+  { id: 17, subjectId: 4, content: 'Choose the correct spelling:', optA: 'Beautifull', optB: 'Beautiful', optC: 'Beatiful', optD: 'Bautifull', correct: 'B' },
+  { id: 18, subjectId: 4, content: 'Complete the sentence: She ___ English very well.', optA: 'speaks', optB: 'speak', optC: 'speaking', optD: 'spoke', correct: 'A' },
+  { id: 19, subjectId: 4, content: 'What is the antonym of "hot"?', optA: 'warm', optB: 'spicy', optC: 'fire', optD: 'cold', correct: 'D' },
+  { id: 20, subjectId: 4, content: 'Complete: If it rains, we ___ at home.', optA: 'stayed', optB: 'stay', optC: 'will stay', optD: 'would stay', correct: 'C' },
+
+  // Lịch sử (subjectId = 5)
+  { id: 21, subjectId: 5, content: 'Chiến dịch Điện Biên Phủ kết thúc vào năm nào?', optA: '1945', optB: '1975', optC: '1954', optD: '1930', correct: 'C' },
+  { id: 22, subjectId: 5, content: 'Ai là người đọc Tuyên ngôn Độc lập khai sinh nước VNDCCH?', optA: 'Hồ Chí Minh', optB: 'Võ Nguyên Giáp', optC: 'Phan Bội Châu', optD: 'Trần Phú', correct: 'A' },
+  { id: 23, subjectId: 5, content: 'Ai là vị vua cuối cùng của triều đại phong kiến Việt Nam?', optA: 'Gia Long', optB: 'Bảo Đại', optC: 'Tự Đức', optD: 'Khải Định', correct: 'B' },
+  { id: 24, subjectId: 5, content: 'Cách mạng Tháng Tám diễn ra vào năm nào?', optA: '1930', optB: '1940', optC: '1950', optD: '1945', correct: 'D' },
+  { id: 25, subjectId: 5, content: 'Trận Bạch Đằng Ngô Quyền đánh bại quân Nam Hán vào năm nào?', optA: '938', optB: '981', optC: '1288', optD: '1010', correct: 'A' },
+
+  // Sinh học (subjectId = 6)
+  { id: 26, subjectId: 6, content: 'Cơ quan nào trong cơ thể người lọc máu?', optA: 'Tim', optB: 'Thận', optC: 'Phổi', optD: 'Dạ dày', correct: 'B' },
+  { id: 27, subjectId: 6, content: 'Nhóm máu nào được gọi là nhóm máu chuyên cho?', optA: 'Nhóm máu O', optB: 'Nhóm máu A', optC: 'Nhóm máu B', optD: 'Nhóm máu AB', correct: 'A' },
+  { id: 28, subjectId: 6, content: 'Chất diệp lục trong cây có màu gì?', optA: 'Màu đỏ', optB: 'Màu vàng', optC: 'Màu xanh lá cây', optD: 'Không màu', correct: 'C' },
+  { id: 29, subjectId: 6, content: 'Xương dài nhất trong cơ thể người là xương nào?', optA: 'Xương sườn', optB: 'Xương cánh tay', optC: 'Xương cột sống', optD: 'Xương đùi', correct: 'D' },
+  { id: 30, subjectId: 6, content: 'Thuyết tiến hóa được đề xuất bởi nhà khoa học nào?', optA: 'Newton', optB: 'Charles Darwin', optC: 'Einstein', optD: 'Mendeleev', correct: 'B' },
+
+  // Tin học (subjectId = 7)
+  { id: 31, subjectId: 7, content: 'Định dạng file nào sau đây là file ảnh?', optA: '.png', optB: '.mp3', optC: '.exe', optD: '.txt', correct: 'A' },
+  { id: 32, subjectId: 7, content: 'RAM là viết tắt của từ gì?', optA: 'Read Access Memory', optB: 'Rapid Access Memory', optC: 'Random Access Memory', optD: 'Real Active Memory', correct: 'C' },
+  { id: 33, subjectId: 7, content: 'Trong lập trình, vòng lặp nào lặp với số lần biết trước?', optA: 'while', optB: 'for', optC: 'do-while', optD: 'foreach', correct: 'B' },
+  { id: 34, subjectId: 7, content: 'Giao thức HTTP chạy mặc định trên cổng nào?', optA: '443', optB: '21', optC: '22', optD: '80', correct: 'D' },
+  { id: 35, subjectId: 7, content: 'Đâu là một ngôn ngữ lập trình phổ biến?', optA: 'Python', optB: 'HTML', optC: 'CSS', optD: 'JSON', correct: 'A' },
 ];
 
 const CORRECT_LABELS = { A: 'A', B: 'B', C: 'C', D: 'D' };
 
 // ── Form Modal ─────────────────────────────────────────────────────────────
-function QuestionFormModal({ mode, question, onClose, onSave }) {
+function QuestionFormModal({ mode, question, onClose, onSave, subjects }) {
   const [form, setForm] = useState({
-    subjectId: question?.subjectId || SUBJECTS[0].id,
+    subjectId: question?.subjectId || (subjects.length > 0 ? subjects[0].id : ''),
     content:   question?.content   || '',
     optA:      question?.optA      || '',
     optB:      question?.optB      || '',
@@ -59,7 +100,7 @@ function QuestionFormModal({ mode, question, onClose, onSave }) {
           <div className="adc-form-field">
             <label>Môn thi *</label>
             <select className="adc-input" value={form.subjectId} onChange={(e) => set('subjectId', e.target.value)}>
-              {SUBJECTS.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              {subjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
 
@@ -141,7 +182,9 @@ function ConfirmModal({ question, onClose, onConfirm }) {
 
 // ── Component chính ────────────────────────────────────────────────────────
 function AdminQuestionList() {
-  const [questions, setQuestions]   = useState(INIT_QUESTIONS);
+  const [questions, setQuestions]   = useState([]);
+  const [subjects, setSubjects]     = useState([]);
+  const [loading, setLoading]       = useState(true);
   const [filterSubject, setFilter]  = useState('all');
   const [search, setSearch]         = useState('');
   const [formModal, setFormModal]   = useState(null);
@@ -150,6 +193,37 @@ function AdminQuestionList() {
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
+  const fetchQuestionsAndSubjects = () => {
+    Promise.all([
+      axios.get('/api/subjects'),
+      axios.get('/api/admin/questions')
+    ])
+      .then(([subjectsRes, questionsRes]) => {
+        setSubjects(subjectsRes.data.data || []);
+        const mappedQuestions = (questionsRes.data.data || []).map(q => ({
+          id: q.id,
+          subjectId: q.subject_id,
+          content: q.question,
+          optA: q.option_a,
+          optB: q.option_b,
+          optC: q.option_c,
+          optD: q.option_d,
+          correct: q.correct_answer
+        }));
+        setQuestions(mappedQuestions);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        showToast('❌ Lỗi khi tải dữ liệu câu hỏi.');
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchQuestionsAndSubjects();
+  }, []);
+
   const filtered = useMemo(() => {
     let q = questions;
     if (filterSubject !== 'all') q = q.filter((x) => x.subjectId === Number(filterSubject));
@@ -157,27 +231,64 @@ function AdminQuestionList() {
     return q;
   }, [questions, filterSubject, search]);
 
-  const getSubjectName = (id) => SUBJECTS.find((s) => s.id === id)?.name || '—';
+  const getSubjectName = (id) => subjects.find((s) => s.id === id)?.name || '—';
 
   const handleSave = (data) => {
+    const payload = {
+      subject_id: data.subjectId,
+      question: data.content,
+      option_a: data.optA,
+      option_b: data.optB,
+      option_c: data.optC,
+      option_d: data.optD,
+      correct_answer: data.correct
+    };
+
     if (formModal.mode === 'add') {
-      const newId = questions.length ? Math.max(...questions.map((q) => q.id)) + 1 : 1;
-      setQuestions((prev) => [{ id: newId, ...data }, ...prev]);
-      showToast('✅ Đã thêm câu hỏi mới!');
+      axios.post('/api/questions', payload)
+        .then(() => {
+          showToast('✅ Đã thêm câu hỏi mới!');
+          fetchQuestionsAndSubjects();
+        })
+        .catch((err) => {
+          console.error(err);
+          showToast('❌ Thêm câu hỏi thất bại.');
+        });
     } else {
-      setQuestions((prev) =>
-        prev.map((q) => (q.id === formModal.question.id ? { ...q, ...data } : q))
-      );
-      showToast('✅ Đã cập nhật câu hỏi!');
+      axios.put(`/api/questions/${formModal.question.id}`, payload)
+        .then(() => {
+          showToast('✅ Đã cập nhật câu hỏi!');
+          fetchQuestionsAndSubjects();
+        })
+        .catch((err) => {
+          console.error(err);
+          showToast('❌ Cập nhật câu hỏi thất bại.');
+        });
     }
     setFormModal(null);
   };
 
   const handleConfirmDelete = () => {
-    setQuestions((prev) => prev.filter((q) => q.id !== confirmDel.id));
-    showToast('🗑️ Đã xóa câu hỏi.');
+    axios.delete(`/api/questions/${confirmDel.id}`)
+      .then(() => {
+        showToast('🗑️ Đã xóa câu hỏi.');
+        fetchQuestionsAndSubjects();
+      })
+      .catch((err) => {
+        console.error(err);
+        showToast('❌ Xóa câu hỏi thất bại.');
+      });
     setConfirmDel(null);
   };
+
+  if (loading) {
+    return (
+      <div className="adc-loading">
+        <div className="adc-spinner" />
+        <p>Đang tải danh sách câu hỏi...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="adc-page">
@@ -188,6 +299,7 @@ function AdminQuestionList() {
           question={formModal.question}
           onClose={() => setFormModal(null)}
           onSave={handleSave}
+          subjects={subjects}
         />
       )}
       {confirmDel && (
@@ -229,7 +341,7 @@ function AdminQuestionList() {
             style={{ minWidth: 200 }}
           >
             <option value="all">📚 Tất cả môn thi</option>
-            {SUBJECTS.map((s) => (
+            {subjects.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>

@@ -11,7 +11,7 @@ export default function ExamRoom() {
   const [questions, setQuestions] = useState([]);
 
 useEffect(() => {
-  fetch("http://127.0.0.1:8000/api/questions")
+  fetch(`/api/questions?subject_id=${id}`)
     .then((res) => res.json())
     .then((data) => {
       console.log(data);
@@ -20,7 +20,7 @@ useEffect(() => {
     .catch((err) => {
       console.log(err);
     });
-}, []);
+}, [id]);
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});

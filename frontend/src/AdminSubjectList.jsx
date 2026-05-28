@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const SUBJECT_ICONS = ['📘', '📗', '📙', '📕', '📓', '📔', '📒'];
 
 const INIT_SUBJECTS = [
-  { id: 1, name: 'Kiểm thử phần mềm',        desc: 'Các kỹ thuật kiểm thử phần mềm hiện đại', duration: 45, questions: 40, active: true  },
-  { id: 2, name: 'Xây dựng phần mềm Web',     desc: 'HTML, CSS, JavaScript và các framework',   duration: 60, questions: 50, active: true  },
-  { id: 3, name: 'Lập trình C++',             desc: 'Ngôn ngữ lập trình C++ từ cơ bản đến nâng cao', duration: 45, questions: 40, active: true  },
-  { id: 4, name: 'Cơ sở dữ liệu',            desc: 'SQL, thiết kế CSDL quan hệ',               duration: 45, questions: 35, active: true  },
-  { id: 5, name: 'Mạng máy tính',            desc: 'Giao thức mạng, TCP/IP, OSI model',         duration: 30, questions: 30, active: false },
-  { id: 6, name: 'Trí tuệ nhân tạo',         desc: 'Machine Learning, Deep Learning cơ bản',   duration: 60, questions: 45, active: true  },
+  { id: 1, name: 'Toán học',   desc: 'Đề kiểm tra chương 1-3', duration: 45, questions: 5, active: true },
+  { id: 2, name: 'Vật lý',     desc: 'Đề giữa kỳ', duration: 45, questions: 5, active: true },
+  { id: 3, name: 'Hóa học',    desc: 'Ngân hàng câu hỏi cơ bản', duration: 45, questions: 5, active: true },
+  { id: 4, name: 'Tiếng Anh',  desc: 'Đề thi học kỳ', duration: 60, questions: 5, active: true },
+  { id: 5, name: 'Lịch sử',    desc: 'Đề ôn tập tổng hợp', duration: 45, questions: 5, active: true },
+  { id: 6, name: 'Sinh học',   desc: 'Câu hỏi bài tập lớn', duration: 45, questions: 5, active: true },
+  { id: 7, name: 'Tin học',    desc: 'Kiểm tra kiến thức lập trình', duration: 45, questions: 5, active: true },
 ];
 
 // ── Form Modal ─────────────────────────────────────────────────────────────
@@ -105,7 +107,8 @@ function ConfirmModal({ subject, onClose, onConfirm }) {
 
 // ── Component chính ────────────────────────────────────────────────────────
 function AdminSubjectList() {
-  const [subjects, setSubjects]     = useState(INIT_SUBJECTS);
+  const [subjects, setSubjects]     = useState([]);
+  const [loading, setLoading]       = useState(true);
   const [search, setSearch]         = useState('');
   const [formModal, setFormModal]   = useState(null);
   const [confirmDel, setConfirmDel] = useState(null);
@@ -116,37 +119,105 @@ function AdminSubjectList() {
     setTimeout(() => setToast(''), 3000);
   };
 
+  const fetchSubjects = () => {
+    axios.get('/api/subjects')
+      .then((res) => {
+        const mapped = (res.data.data || []).map(s => ({
+          ...s,
+          questions: s.questions_count ?? 0
+        }));
+        setSubjects(mapped);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        showToast('❌ Lỗi khi tải danh sách môn thi.');
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchSubjects();
+  }, []);
+
   const filtered = subjects.filter(
     (s) =>
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.desc.toLowerCase().includes(search.toLowerCase())
+      (s.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (s.desc || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSave = (data) => {
+    const payload = {
+      name: data.name,
+      desc: data.desc,
+      duration: Number(data.duration),
+      active: data.active
+    };
+
     if (formModal.mode === 'add') {
-      const newId = subjects.length ? Math.max(...subjects.map((s) => s.id)) + 1 : 1;
-      setSubjects((prev) => [{ id: newId, ...data }, ...prev]);
-      showToast('✅ Đã thêm môn thi mới!');
+      axios.post('/api/subjects', payload)
+        .then(() => {
+          showToast('✅ Đã thêm môn thi mới!');
+          fetchSubjects();
+        })
+        .catch((err) => {
+          console.error(err);
+          showToast('❌ Thêm môn thi thất bại.');
+        });
     } else {
-      setSubjects((prev) =>
-        prev.map((s) => (s.id === formModal.subject.id ? { ...s, ...data } : s))
-      );
-      showToast('✅ Đã cập nhật thông tin môn thi!');
+      axios.put(`/api/subjects/${formModal.subject.id}`, payload)
+        .then(() => {
+          showToast('✅ Đã cập nhật thông tin môn thi!');
+          fetchSubjects();
+        })
+        .catch((err) => {
+          console.error(err);
+          showToast('❌ Cập nhật môn thi thất bại.');
+        });
     }
     setFormModal(null);
   };
 
   const handleConfirmDelete = () => {
-    setSubjects((prev) => prev.filter((s) => s.id !== confirmDel.id));
-    showToast(`🗑️ Đã xóa môn thi "${confirmDel.name}".`);
+    axios.delete(`/api/subjects/${confirmDel.id}`)
+      .then(() => {
+        showToast(`🗑️ Đã xóa môn thi "${confirmDel.name}".`);
+        fetchSubjects();
+      })
+      .catch((err) => {
+        console.error(err);
+        showToast('❌ Xóa môn thi thất bại.');
+      });
     setConfirmDel(null);
   };
 
   const toggleActive = (id) => {
-    setSubjects((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, active: !s.active } : s))
-    );
+    const target = subjects.find(s => s.id === id);
+    if (!target) return;
+
+    axios.put(`/api/subjects/${id}`, {
+      name: target.name,
+      desc: target.desc,
+      duration: target.duration,
+      active: !target.active
+    })
+      .then(() => {
+        fetchSubjects();
+      })
+      .catch((err) => {
+        console.error(err);
+        showToast('❌ Không thể đổi trạng thái môn thi.');
+      });
   };
+
+  if (loading) {
+    return (
+      <div className="adc-loading">
+        <div className="adc-spinner" />
+        <p>Đang tải danh sách môn thi...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="adc-page">

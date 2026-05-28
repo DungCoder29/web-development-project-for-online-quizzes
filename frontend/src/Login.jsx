@@ -82,8 +82,6 @@ function Login() {
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value.toUpperCase())}
                 autoComplete="username"
-                pattern={"^DH\\d{8}$"}
-                title="Mã phải bắt đầu bằng DH và theo sau 8 chữ số"
               />
             </div>
 
