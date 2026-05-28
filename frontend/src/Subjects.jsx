@@ -59,7 +59,7 @@ export default function Subjects() {
         if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
         return 0;
       });
-  }, [search, sortBy, sortOrder]);
+  }, [subjects, search, sortBy, sortOrder]);
 
   const pageCount = Math.ceil(filteredSubjects.length / pageSize);
   const currentPage = Math.min(page, pageCount) || 1;
