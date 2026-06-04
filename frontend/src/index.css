@@ -381,10 +381,10 @@ body {
 .forgot-link {
   width: 100%;
   padding: 12px 0;
-  border: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.08);
-  color: #0f172a;
+  background: transparent;
+  color: #ffffff;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
@@ -394,7 +394,7 @@ body {
 
 .secondary-btn:hover,
 .forgot-link:hover {
-  background: rgba(15, 23, 42, 0.14);
+  background: rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
 }
 
@@ -1926,4 +1926,61 @@ body {
   .adc-table-wrap    { font-size: 0.85rem; }
   .adc-page-header   { flex-direction: column; align-items: flex-start; }
 }
+.panel-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.9rem;
+}
 
+.link-btn {
+  background: none;
+  border: none;
+  color: rgba(15, 23, 42, 0.65);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+}
+
+.link-btn:hover { color: #0f172a; }
+
+.panel-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 1rem 0 0.75rem;
+}
+
+.panel-divider span {
+  flex: 1;
+  height: 1px;
+  background: rgba(15, 23, 42, 0.12);
+}
+
+.panel-divider small {
+  font-size: 11px;
+  color: rgba(15, 23, 42, 0.4);
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: rgba(15, 23, 42, 0.55);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  display: block;
+  font-family: inherit;
+}
+
+.back-btn:hover { color: #0f172a; }
+
+.panel-note {
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.55);
+  text-align: center;
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
