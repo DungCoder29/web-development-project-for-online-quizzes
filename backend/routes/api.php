@@ -21,6 +21,7 @@ Route::delete('/v1/users/{id}', [UserController::class, 'destroy']);
 // Auth
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/register', [AuthController::class, 'register']);
 
 // Subjects
 Route::get('/subjects', [SubjectController::class, 'index']);

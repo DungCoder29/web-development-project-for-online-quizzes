@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -42,5 +43,28 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Nếu mã số sinh viên tồn tại, hướng dẫn đặt lại mật khẩu sẽ được gửi đến email đăng ký.'
         ]);
+    }
+
+    public function register(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'phone' => $data['phone'] ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đăng ký thành công',
+            'data' => $user
+        ], 201);
     }
 }

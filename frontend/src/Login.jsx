@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import stuLogo from './assets/stu-logo.png';
 import { useAuth } from './AuthContext';
+import api from './api';
 
 function Login() {
   const [panel, setPanel] = useState('login'); // 'login' | 'register' | 'forgot'
@@ -87,13 +88,26 @@ function Login() {
       return;
     }
 
-    // TODO: Gọi API đăng ký thật ở đây
-    setRegSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
-    setTimeout(() => {
-      setPanel('login');
-      setRegSuccess('');
-      setRegId(''); setRegName(''); setRegEmail(''); setRegPassword('');
-    }, 1800);
+    // Call the registration API
+    api.post('/register', {
+      name: regName.trim(),
+      email: regEmail.trim(),
+      password: regPassword.trim(),
+      phone: upperRegId // Store student ID (MSSV) in the phone field so it displays in Admin panel user list!
+    })
+    .then(() => {
+      setRegSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
+      setTimeout(() => {
+        setPanel('login');
+        setRegSuccess('');
+        setRegId(''); setRegName(''); setRegEmail(''); setRegPassword('');
+      }, 1800);
+    })
+    .catch((err) => {
+      console.error(err);
+      const errMsg = err.response?.data?.message || 'Đăng ký thất bại, email đã được sử dụng hoặc có lỗi xảy ra.';
+      setRegError(errMsg);
+    });
   };
 
   // ── Quên mật khẩu ──────────────────────────────────────────
