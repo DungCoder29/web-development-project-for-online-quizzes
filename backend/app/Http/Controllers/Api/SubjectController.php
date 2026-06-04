@@ -40,7 +40,7 @@ class SubjectController extends Controller
         return response()->json([
             'success' => true,
             'data'    => $subject,
-        ], 21);
+        ], 201);
     }
 
     public function update(Request $request, $id): JsonResponse

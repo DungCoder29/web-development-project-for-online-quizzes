@@ -63,7 +63,7 @@ class QuestionController extends Controller
         return response()->json([
             'success' => true,
             'data'    => $question,
-        ], 21);
+        ], 201);
     }
 
     public function update(Request $request, $id): JsonResponse
