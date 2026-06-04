@@ -88,12 +88,11 @@ function Login() {
       return;
     }
 
-    // Call the registration API
     api.post('/register', {
+      student_id: upperRegId,
       name: regName.trim(),
       email: regEmail.trim(),
-      password: regPassword.trim(),
-      phone: upperRegId // Store student ID (MSSV) in the phone field so it displays in Admin panel user list!
+      password: regPassword
     })
     .then(() => {
       setRegSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
@@ -105,8 +104,7 @@ function Login() {
     })
     .catch((err) => {
       console.error(err);
-      const errMsg = err.response?.data?.message || 'Đăng ký thất bại, email đã được sử dụng hoặc có lỗi xảy ra.';
-      setRegError(errMsg);
+      setRegError(err.response?.data?.message || 'Đăng ký thất bại. MSSV hoặc Email đã tồn tại.');
     });
   };
 

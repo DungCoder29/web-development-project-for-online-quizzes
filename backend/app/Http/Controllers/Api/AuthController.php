@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -48,23 +47,24 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'phone' => 'nullable|string|max:20',
+            'student_id' => 'required|string|regex:/^DH\d{8}$/i',
+            'name'       => 'required|string|max:255',
+            'email'      => 'required|email|ends_with:@stu.edu.vn|unique:users,email',
+            'password'   => 'required|string|min:8',
         ]);
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'phone' => $data['phone'] ?? null,
+        $user = \App\Models\User::create([
+            'name'       => $data['name'],
+            'email'      => $data['email'],
+            'password'   => bcrypt($data['password']),
+            'student_id' => $data['student_id'],
+            'phone'      => '', // Student phone is empty initially
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Đăng ký thành công',
-            'data' => $user
+            'message' => 'User registered successfully',
+            'data'    => $user
         ], 201);
     }
 }

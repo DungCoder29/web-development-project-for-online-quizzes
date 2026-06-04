@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index(): JsonResponse
     {
-        $users = User::select('id', 'name', 'phone')
+        $users = User::select('id', 'name', 'phone', 'email', 'student_id')
             ->orderBy('id', 'asc')
             ->get();
 
@@ -25,8 +25,9 @@ class UserController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'  => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'name'       => 'required|string|max:255',
+            'phone'      => 'required|string|max:20',
+            'student_id' => 'nullable|string|max:50',
         ]);
 
         // Generate email and default password to satisfy DB constraints
@@ -38,18 +39,20 @@ class UserController extends Controller
         }
 
         $user = User::create([
-            'name'     => $validated['name'],
-            'phone'    => $validated['phone'],
-            'email'    => $email,
-            'password' => bcrypt('password'), // default password
+            'name'       => $validated['name'],
+            'phone'      => $validated['phone'],
+            'student_id' => $validated['student_id'] ?? null,
+            'email'      => $email,
+            'password'   => bcrypt('password'), // default password
         ]);
 
         return response()->json([
             'success' => true,
             'data'    => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'phone' => $user->phone,
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'phone'      => $user->phone,
+                'student_id' => $user->student_id,
             ],
         ], 201);
     }
@@ -79,21 +82,24 @@ class UserController extends Controller
         }
 
         $validated = $request->validate([
-            'name'  => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'name'       => 'required|string|max:255',
+            'phone'      => 'required|string|max:20',
+            'student_id' => 'nullable|string|max:50',
         ]);
 
         $user->update([
-            'name'  => $validated['name'],
-            'phone' => $validated['phone'],
+            'name'       => $validated['name'],
+            'phone'      => $validated['phone'],
+            'student_id' => $validated['student_id'] ?? null,
         ]);
 
         return response()->json([
             'success' => true,
             'data'    => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'phone' => $user->phone,
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'phone'      => $user->phone,
+                'student_id' => $user->student_id,
             ],
         ]);
     }

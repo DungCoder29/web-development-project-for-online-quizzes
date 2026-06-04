@@ -9,6 +9,7 @@ const AVATAR_COLORS = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#dc2626', '#
 function UserFormModal({ mode, user, onClose, onSave }) {
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
+  const [studentId, setStudentId] = useState(user?.student_id || '');
   const [err, setErr] = useState('');
 
   const handleSave = () => {
@@ -16,7 +17,7 @@ function UserFormModal({ mode, user, onClose, onSave }) {
       setErr('Vui lòng nhập đầy đủ họ tên và số điện thoại.');
       return;
     }
-    onSave({ name: name.trim(), phone: phone.trim() });
+    onSave({ name: name.trim(), phone: phone.trim(), student_id: studentId.trim().toUpperCase() });
   };
 
   return (
@@ -35,6 +36,15 @@ function UserFormModal({ mode, user, onClose, onSave }) {
               placeholder="Nhập họ và tên..."
               value={name}
               onChange={(e) => { setName(e.target.value); setErr(''); }}
+            />
+          </div>
+          <div className="adc-form-field">
+            <label>MSSV (Không bắt buộc)</label>
+            <input
+              className="adc-input"
+              placeholder="Ví dụ: DH52109876..."
+              value={studentId}
+              onChange={(e) => { setStudentId(e.target.value); setErr(''); }}
             />
           </div>
           <div className="adc-form-field">
@@ -128,7 +138,8 @@ function UserList() {
     return users.filter(
       (u) =>
         (u.name || '').toLowerCase().includes(term) ||
-        (u.phone || '').toLowerCase().includes(term)
+        (u.phone || '').toLowerCase().includes(term) ||
+        (u.student_id || '').toLowerCase().includes(term)
     );
   }, [users, searchTerm]);
 
@@ -144,9 +155,9 @@ function UserList() {
 
   const handleDelete = (user) => setConfirmDel(user);
 
-  const handleSaveForm = ({ name, phone }) => {
+  const handleSaveForm = ({ name, phone, student_id }) => {
     if (formModal.mode === 'add') {
-      api.post(API_URL, { name, phone })
+      api.post(API_URL, { name, phone, student_id })
         .then(() => {
           setToast('✅ Đã thêm người dùng mới thành công!');
           fetchUsers();
@@ -156,7 +167,7 @@ function UserList() {
           setToast('❌ Thêm người dùng thất bại.');
         });
     } else {
-      api.put(`${API_URL}/${formModal.user.id}`, { name, phone })
+      api.put(`${API_URL}/${formModal.user.id}`, { name, phone, student_id })
         .then(() => {
           setToast('✅ Đã cập nhật thông tin người dùng!');
           fetchUsers();
@@ -252,6 +263,7 @@ function UserList() {
               <tr>
                 <th>#</th>
                 <th>Người dùng</th>
+                <th>MSSV</th>
                 <th>Số điện thoại</th>
                 <th>Trạng thái</th>
                 <th className="text-end">Thao tác</th>
@@ -260,7 +272,7 @@ function UserList() {
             <tbody>
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="adc-table__empty">
+                  <td colSpan={6} className="adc-table__empty">
                     {searchTerm ? 'Không tìm thấy người dùng phù hợp.' : 'Chưa có dữ liệu.'}
                   </td>
                 </tr>
@@ -278,6 +290,9 @@ function UserList() {
                         </div>
                         <span className="adc-user-cell__name">{user.name}</span>
                       </div>
+                    </td>
+                    <td>
+                      <span className="adc-chip adc-chip--gray">{user.student_id || 'N/A'}</span>
                     </td>
                     <td>
                       <span className="adc-chip adc-chip--blue">{user.phone}</span>
