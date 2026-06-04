@@ -51,7 +51,7 @@ class UserController extends Controller
                 'name'  => $user->name,
                 'phone' => $user->phone,
             ],
-        ], 21);
+        ], 201);
     }
 
     public function destroy($id): JsonResponse
